@@ -1,3 +1,6 @@
 [submodule "lib/hal"]
 	path = lib/hal
 	url = git@github.com:cmckiel/hal.git
+[submodule "lib/icd"]
+	path = lib/icd
+	url = git@github.com:cmckiel/neutros-icd.git
