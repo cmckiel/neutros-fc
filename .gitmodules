@@ -1,0 +1,3 @@
+[submodule "lib/hal"]
+	path = lib/hal
+	url = git@github.com:cmckiel/hal.git
