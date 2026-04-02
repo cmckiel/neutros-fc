@@ -1,6 +1,5 @@
 #include "scheduler.h"
 #include "scheduler_types.h"
-#include "task.h"
 #include "hal/systick.h"
 
 #include "c2.h"
