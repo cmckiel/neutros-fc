@@ -1,6 +1,23 @@
 #include "scheduler.h"
-#include "config.h"
+#include "scheduler_types.h"
+#include "task.h"
 #include "hal/systick.h"
+
+#include "c2.h"
+#include "telemetry.h"
+
+schedule_t schedule = {
+  .tasks = {
+    {
+      .task_init = c2_init,
+      .task_exec = c2_exec
+    },
+    {
+      .task_init = telemetry_init,
+      .task_exec = telemetry_exec
+    }
+  }
+};
 
 bool scheduler_init()
 {
