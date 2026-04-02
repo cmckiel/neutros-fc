@@ -1,0 +1,10 @@
+#ifndef _BLACKBOARD_TOPIC_IDS_H
+#define _BLACKBOARD_TOPIC_IDS_H
+
+typedef enum {
+  _BLACKBOARD_TOPIC_ID_MIN,
+  C2_TOPIC_ID = _BLACKBOARD_TOPIC_ID_MIN,
+  _BLACKBOARD_TOPIC_ID_MAX
+} blackboard_topic_id_t;
+
+#endif /* _BLACKBOARD_TOPIC_IDS_H */
