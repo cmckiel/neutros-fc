@@ -1,0 +1,24 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "neutros-fc",
+            "displayName": "Neutros FC (Release)",
+            "description": "Build for STM32F446 target optimized",
+            "binaryDir": "${sourceDir}/build",
+            "toolchainFile": "${sourceDir}/cmake/CMakeToolChain.stm32f446.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/lib/hal/install/release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "neutros-fc",
+            "displayName": "Build Neutros FC (Release)",
+            "configurePreset": "neutros-fc"
+        }
+    ]
+}

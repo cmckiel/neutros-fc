@@ -1,0 +1,25 @@
+set(CMAKE_HOST_SYSTEM_NAME    Linux)
+set(CMAKE_SYSTEM_NAME       Generic)
+set(CMAKE_SYSTEM_PROCESSOR armv7e-m)
+
+set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+set(CMAKE_LINKER arm-none-eabi-ld)
+set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+set(CMAKE_OBJDUMP arm-none-eabi-objdump)
+set(CMAKE_RANLIB arm-none-eabi-ranlib)
+set(CMAKE_SIZE arm-none-eabi-size)
+set(CMAKE_STRIP arm-none-eabi-strip)
+
+set(CMAKE_C_FLAGS "-mcpu=cortex-m4 --specs=nano.specs -fdata-sections -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wall")
+set(CMAKE_CXX_FLAGS "-mcpu=cortex-m4 --specs=nano.specs -fdata-sections -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wall")
+set(CMAKE_EXE_LINKER_FLAGS "-mcpu=cortex-m4 -T${PROJECT_SOURCE_DIR}/STM32F446RETX_FLASH.ld") # Path to your linker script
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nosys.specs -Wl,-Map=\"hal.map\"")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -static -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group -lc -lm -Wl,--end-group")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float")
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

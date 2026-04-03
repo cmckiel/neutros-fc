@@ -27,12 +27,14 @@ bool scheduler_init()
       schedule.tasks[i].task_init();
     }
   }
+
+  return true;
 }
 
-bool scheduler_exec()
+void scheduler_exec()
 {
   int i = 0;
-  const NUM_TASKS = sizeof(schedule.tasks) / sizeof(task_t);
+  const int NUM_TASKS = sizeof(schedule.tasks) / sizeof(task_t);
 
   while (true)
   {

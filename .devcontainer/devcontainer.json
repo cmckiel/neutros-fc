@@ -1,0 +1,18 @@
+{
+  "name": "Neutros Build Container",
+  "image": "cmckiel/hal-build-environment:latest",
+  "customizations": {
+    "vscode": {
+        "extensions": [
+            "ms-vscode.cmake-tools",
+            "ms-vscode.cpptools",
+            "ms-vscode.cpptools-extension-pack",
+            "twxs.cmake"
+        ],
+        "settings": {
+            "cmake.useCMakePresets": "always",
+            "cmake.configureOnOpen": false
+        }
+    }
+  }
+}

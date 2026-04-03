@@ -1,6 +1,8 @@
 #ifndef _C2_TYPES_H
 #define _C2_TYPES_H
 
+#include <stdint.h>
+
 #define C2_BLACKBOARD_RAW_DATA_SIZE 64
 
 typedef struct {

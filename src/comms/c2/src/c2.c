@@ -29,13 +29,15 @@ bool c2_exec()
 
   if (c2_initialized)
   {
-    const size_t LEN = 10;
-    uint8_t data[LEN] = {0};
+    uint8_t data[10] = {0};
     size_t bytes_read = 0;
 
-    hal_status_t status = hal_uart_read(uart_channel, data, sizeof(data), bytes_read);
+    hal_status_t status = hal_uart_read(uart_channel, data, sizeof(data), &bytes_read);
 
-    memcpy(c2_blackboard_data->public_data.received_data_raw, data, sizeof(c2_blackboard_data->public_data.received_data_raw));
+    size_t min_data_size = (sizeof(c2_blackboard_data->public_data.received_data_raw) > sizeof(data)) ?
+      sizeof(data) : sizeof(c2_blackboard_data->public_data.received_data_raw);
+
+    memcpy(c2_blackboard_data->public_data.received_data_raw, data, min_data_size);
 
     res = (status == HAL_STATUS_OK) ? true : false;
   }
