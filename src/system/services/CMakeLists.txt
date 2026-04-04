@@ -1,20 +1,16 @@
 add_library(
-  scheduler STATIC
-  src/scheduler.c
+  services STATIC
+  src/i2c_servicer.c
 )
 
 target_include_directories(
-  scheduler
+  services
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(
-  scheduler
+  services
   PRIVATE
   Hal::stm32f4_hal
-  c2
-  imu
-  telemetry
-  services
 )

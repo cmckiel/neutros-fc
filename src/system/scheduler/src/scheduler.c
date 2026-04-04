@@ -4,27 +4,33 @@
 
 #include "c2.h"
 #include "telemetry.h"
+#include "imu.h"
+#include "i2c_servicer.h"
 
-schedule_t schedule = {
-  .tasks = {
-    {
-      .task_init = c2_init,
-      .task_exec = c2_exec
-    },
-    {
-      .task_init = telemetry_init,
-      .task_exec = telemetry_exec
-    }
-  }
+task_init_t task_init[] = {
+  i2c_servicer_init,
+  c2_init,
+  imu_init,
+  telemetry_init,
+};
+
+task_t schedule[] = {
+  { .task_exec = imu_exec },
+  { .task_exec = i2c_servicer_exec },
+  { .task_exec = c2_exec },
+  { .task_exec = i2c_servicer_exec },
+  { .task_exec = imu_exec },
+  { .task_exec = i2c_servicer_exec },
+  { .task_exec = telemetry_exec },
 };
 
 bool scheduler_init()
 {
-  for (int i = 0; i < sizeof(schedule.tasks) / sizeof(task_t); ++i)
+  for (int i = 0; i < sizeof(task_init) / sizeof(task_init_t); ++i)
   {
-    if (schedule.tasks[i].task_init)
+    if (task_init[i])
     {
-      schedule.tasks[i].task_init();
+      task_init[i]();
     }
   }
 
@@ -34,18 +40,18 @@ bool scheduler_init()
 void scheduler_exec()
 {
   int i = 0;
-  const int NUM_TASKS = sizeof(schedule.tasks) / sizeof(task_t);
+  const int NUM_TASKS = sizeof(schedule) / sizeof(task_t);
 
   while (true)
   {
-    if (schedule.tasks[i].task_exec)
+    if (schedule[i].task_exec)
     {
-      schedule.tasks[i].task_exec();
+      schedule[i].task_exec();
     }
 
     i++;
     i = i % NUM_TASKS;
 
-    hal_delay_ms(50);
+    hal_delay_ms(20);
   }
 }

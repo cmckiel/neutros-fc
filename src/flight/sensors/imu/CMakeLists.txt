@@ -1,20 +1,19 @@
 add_library(
-  scheduler STATIC
-  src/scheduler.c
+  imu STATIC
+  src/imu.c
+  src/imu_mpu6050.c
 )
 
 target_include_directories(
-  scheduler
+  imu
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(
-  scheduler
+  imu
   PRIVATE
   Hal::stm32f4_hal
-  c2
-  imu
-  telemetry
-  services
+  blackboard
 )
+

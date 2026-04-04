@@ -4,6 +4,7 @@
 typedef enum {
   _BLACKBOARD_TOPIC_ID_MIN,
   C2_TOPIC_ID = _BLACKBOARD_TOPIC_ID_MIN,
+  IMU_TOPIC_ID,
   _BLACKBOARD_TOPIC_ID_MAX
 } blackboard_topic_id_t;
 
