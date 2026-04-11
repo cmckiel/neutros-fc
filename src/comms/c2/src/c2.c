@@ -29,15 +29,50 @@ bool c2_exec()
 
   if (c2_initialized)
   {
-    uint8_t data[10] = {0};
+    uint8_t data = 0;
     size_t bytes_read = 0;
 
-    hal_status_t status = hal_uart_read(uart_channel, data, sizeof(data), &bytes_read);
+    hal_status_t status = hal_uart_read(uart_channel, &data, 1, &bytes_read);
 
-    size_t min_data_size = (sizeof(c2_blackboard_data->public_data.received_data_raw) > sizeof(data)) ?
-      sizeof(data) : sizeof(c2_blackboard_data->public_data.received_data_raw);
+    uint8_t duty_cycle = c2_blackboard_data->public_data.commanded_motor_duty_cycle;
 
-    memcpy(c2_blackboard_data->public_data.received_data_raw, data, min_data_size);
+    if (data == 'u')
+    {
+        duty_cycle += 5;
+        if (duty_cycle > 80)
+        {
+            duty_cycle = 80;
+        }
+        else if (duty_cycle < 40)
+        {
+            duty_cycle = 40;
+        }
+    }
+    else if (data == 'd')
+    {
+        if (duty_cycle >= 45)
+        {
+            duty_cycle -= 5;
+        }
+        else
+        {
+            duty_cycle = 40;
+        }
+    }
+    else if (data == '0')
+    {
+        duty_cycle = 0;
+    }
+    else if (data == '8')
+    {
+        duty_cycle = 80;
+    }
+    else if (data == '4')
+    {
+        duty_cycle = 40;
+    }
+
+    c2_blackboard_data->public_data.commanded_motor_duty_cycle = duty_cycle;
 
     res = (status == HAL_STATUS_OK) ? true : false;
   }

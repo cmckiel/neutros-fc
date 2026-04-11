@@ -6,18 +6,21 @@
 #include "telemetry.h"
 #include "imu.h"
 #include "i2c_servicer.h"
+#include "motor.h"
 
 task_init_t task_init[] = {
   i2c_servicer_init,
   c2_init,
   imu_init,
   telemetry_init,
+  motor_init,
 };
 
 task_t schedule[] = {
   { .task_exec = imu_exec },
   { .task_exec = i2c_servicer_exec },
   { .task_exec = c2_exec },
+  { .task_exec = motor_exec },
   { .task_exec = i2c_servicer_exec },
   { .task_exec = imu_exec },
   { .task_exec = i2c_servicer_exec },
