@@ -55,7 +55,7 @@ bool telemetry_exec()
     float x = imu_blackboard_data->public_data.gyroscope.x_angular_velocity_dps;
     float y = imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps;
     float z = imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps;
-    uint8_t motor_output = map(c2_blackboard_data->public_data.commanded_motor_duty_cycle);
+    uint8_t motor_output = map(c2_blackboard_data->public_data.commanded_motor_1_duty_cycle);
 
     // printf("\033[2J\033[H");
     printf("{\"motor\":\"%u\",\"imu\":{\"gx\":\"%.2f\",\"gy\":\"%.2f\",\"gz\":\"%.2f\"}}\r\n", motor_output, x, y, z);

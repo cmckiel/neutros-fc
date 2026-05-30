@@ -11,7 +11,10 @@ typedef struct {
 
 typedef struct {
   uint8_t received_data_raw[C2_BLACKBOARD_RAW_DATA_SIZE];
-  uint8_t commanded_motor_duty_cycle;
+  uint8_t commanded_motor_1_duty_cycle;
+  uint8_t commanded_motor_2_duty_cycle;
+  uint8_t commanded_motor_3_duty_cycle;
+  uint8_t commanded_motor_4_duty_cycle;
 } c2_blackboard_public_data_t;
 
 typedef struct {

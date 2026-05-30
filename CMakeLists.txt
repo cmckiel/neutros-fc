@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.20)
 project(neutros-fc C)
 
 # Include HAL in the project.
-find_package(Hal 0.1.0 REQUIRED CONFIG)
+add_subdirectory(lib/hal)
+add_library(Hal::stm32f4_hal ALIAS stm32f4_hal)
 
 add_subdirectory(src)
 
