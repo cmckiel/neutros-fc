@@ -14,9 +14,6 @@ Neutros Drone Platform: Concept of Operations
 .. sectnum::
    :depth: 3
 
-.. contents:: Table of Contents
-   :depth: 3
-
 .. rst-class:: lead
 
 This document is the top-level Concept of Operations for the Neutros drone
