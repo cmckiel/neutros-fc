@@ -26,5 +26,6 @@ plantuml_output_format = "svg"
 
 # -- Breathe (Doxygen -> Sphinx bridge) --------------------------------------
 # Uncomment and point at your Doxygen XML once Doxygen is emitting it.
-# breathe_projects = {"neutros-fc": "_doxygen/xml"}
-# breathe_default_project = "neutros-fc"
+breathe_projects = {"neutros-fc": "doxygen/xml"}
+breathe_domain_by_extension = {"h": "c", "c": "c"}
+breathe_default_project = "neutros-fc"
