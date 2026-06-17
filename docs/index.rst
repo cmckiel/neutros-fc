@@ -7,3 +7,4 @@ neutros-fc documentation
 
    NTR-CONOPS-001_Neutros_ConOps_v0.1
    api
+   smoke_test

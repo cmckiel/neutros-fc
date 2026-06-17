@@ -1,0 +1,41 @@
+/* Make sphinx-needs follow Furo's light/dark/auto theme.
+   modern.css exposes its colors as --sn-color-* variables; we remap the
+   neutral (gray) ones to Furo's theme variables so tables + need nodes
+   invert correctly in dark mode. The semantic status colors (green/red/
+   yellow/blue) are left alone — they read fine on either background. */
+
+:root[data-theme="dark"],
+body[data-theme="dark"] {
+    --sn-color-need-bg:            var(--color-background-secondary);
+    --sn-color-need-bg-head:       var(--color-background-hover);
+    --sn-color-need-border:        var(--color-background-border);
+    --sn-color-need-row-border:    var(--color-background-border);
+    --sn-color-bg-gray:            var(--color-background-secondary);
+    --sn-color-bg-lightgray:       var(--color-background-hover--transparent);
+    --sn-color-border-lightgray:   var(--color-background-border);
+    --sn-color-complete-bg-head:   var(--color-background-hover);
+    --sn-color-complete-bg-foot:   var(--color-background-hover);
+    --sn-color-datatable-body-bg:  var(--color-background-primary);
+    --sn-color-datatable-label:    var(--color-foreground-primary);
+    --sn-color-datatable-btn-border: var(--color-background-border);
+    --sn-color-debug-btn-border:   var(--color-foreground-border);
+}
+
+/* Furo's "auto" mode follows the OS preference via this media query. */
+@media (prefers-color-scheme: dark) {
+    body[data-theme="auto"] {
+        --sn-color-need-bg:            var(--color-background-secondary);
+        --sn-color-need-bg-head:       var(--color-background-hover);
+        --sn-color-need-border:        var(--color-background-border);
+        --sn-color-need-row-border:    var(--color-background-border);
+        --sn-color-bg-gray:            var(--color-background-secondary);
+        --sn-color-bg-lightgray:       var(--color-background-hover--transparent);
+        --sn-color-border-lightgray:   var(--color-background-border);
+        --sn-color-complete-bg-head:   var(--color-background-hover);
+        --sn-color-complete-bg-foot:   var(--color-background-hover);
+        --sn-color-datatable-body-bg:  var(--color-background-primary);
+        --sn-color-datatable-label:    var(--color-foreground-primary);
+        --sn-color-datatable-btn-border: var(--color-background-border);
+        --sn-color-debug-btn-border:   var(--color-foreground-border);
+    }
+}
