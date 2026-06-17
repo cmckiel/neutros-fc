@@ -1,0 +1,408 @@
+==============================================
+Neutros Drone Platform: Concept of Operations
+==============================================
+
+:Author: Cory McKiel
+:Date: 2026-05-21
+:Revision: 0.1
+:Status: Draft for review
+
+.. |document-id| replace:: NTR-CONOPS-001
+.. |revision| replace:: 0.1
+.. |status| replace:: Draft for review
+
+.. sectnum::
+   :depth: 3
+
+.. contents:: Table of Contents
+   :depth: 3
+
+.. rst-class:: lead
+
+This document is the top-level Concept of Operations for the Neutros drone
+platform. Document ID: |document-id|, Revision |revision|, Status: |status|.
+
+Purpose
+=======
+
+This document is the top-level Concept of Operations (ConOps) for the Neutros
+drone platform. It describes what the system does, who operates it, the
+environment in which it operates, and the boundaries within which it is expected
+to behave correctly. It is intended to be the parent document from which system
+and software requirements are derived.
+
+Neutros is a solo-developed 5-inch quadcopter platform. The project has two goals
+that are in tension and that the ConOps is written to keep in balance. The first
+is to produce a credible portfolio object: a small autonomous aircraft that flies
+a planned mission and recovers itself when things go wrong. The second is to
+practice safety-critical development discipline — written requirements, traceable
+tests, documented assumptions, and structured handling of foreseeable faults —
+using DO-178C as a reference framework.
+
+.. note::
+
+   Neutros is not, and is not intended to become, a certifiable system. A
+   one-person team cannot produce a Design Assurance Level artifact set, and
+   pretending otherwise would undermine both goals. The intent is to do the work
+   that a competent safety-critical engineer would recognize as honest, at a
+   scale a single developer can sustain.
+
+Scope and Non-Goals
+===================
+
+Neutros, in this revision, is an autonomous waypoint-following quadcopter operated
+within visual line of sight (VLOS) by a single pilot-in-command. The aircraft
+executes a pre-planned mission consisting of an ordered list of waypoints, returns
+to its launch point on completion, and transitions to a safe recovery mode in
+response to any of a defined set of fault conditions.
+
+In Scope
+--------
+
+- A 5-inch quadcopter airframe with onboard flight controller, IMU, barometer,
+  magnetometer, and GNSS receiver.
+- A ground control station (GCS) used for mission planning, mission upload,
+  arming, mission start, and telemetry monitoring.
+- A command and telemetry link between the GCS and the aircraft.
+- An autonomous mission mode in which the aircraft follows a planned waypoint
+  sequence and returns to launch.
+- A defined set of failsafe behaviors covering low battery, link loss, GNSS loss,
+  and operator abort.
+- A manual override capability allowing the pilot-in-command to take direct
+  control at any time.
+
+Out of Scope (Non-Goals)
+------------------------
+
+The following are explicitly excluded from this revision and from the requirements
+derived from it. Excluding them is a deliberate scoping choice and items in this
+list shall not be inferred as implicit requirements.
+
+- Flight beyond visual line of sight.
+- Flight over people, vehicles, or structures not owned by the operator.
+- Autonomous obstacle detection and avoidance.
+- Payload delivery, dropping, or release of any kind.
+- Person, vehicle, or object following / tracking.
+- Search behaviors such as area coverage patterns or loiter-on-detection. Search
+  may be addressed in a future revision.
+- Multi-aircraft coordination.
+- Flight in precipitation, in winds exceeding the limits defined in
+  :ref:`environment`, at night, or in airspace requiring controller authorization.
+- Formal certification artifacts at any DO-178C Design Assurance Level. The
+  project borrows the structure and discipline of DO-178C without claiming
+  compliance.
+
+Stakeholders and Actors
+=======================
+
+The system has a small actor set. Naming each one explicitly avoids ambiguity in
+downstream requirements about who is responsible for what.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 1 3
+
+   * - Actor
+     - Role
+   * - Pilot-in-Command (PIC)
+     - The human operator. Plans the mission, performs pre-flight checks, arms the
+       aircraft, initiates the mission, monitors flight, retains authority to abort
+       or take manual control at any moment, and is responsible for regulatory
+       compliance.
+   * - Aircraft (Neutros)
+     - The quadcopter. Executes the mission, monitors its own health, and
+       transitions to recovery modes in response to faults.
+   * - Ground Control Station (GCS)
+     - Software running on a laptop or tablet. Provides mission planning, mission
+       upload, telemetry display, and a command interface to the aircraft.
+   * - Command Link
+     - The bidirectional radio link between the GCS and the aircraft. Carries
+       commands from the GCS and telemetry from the aircraft.
+   * - Operating Environment
+     - The physical and regulatory context in which flight occurs. Treated as an
+       actor because its state — wind, GNSS visibility, the presence of bystanders
+       — directly affects whether flight is permitted.
+
+.. _environment:
+
+Operational Environment and Assumptions
+=======================================
+
+The assumptions below define the conditions under which the system is expected to
+operate correctly. Each assumption is a constraint the PIC is responsible for
+verifying before flight. Violating an assumption does not necessarily cause
+failure, but the system's correctness guarantees do not extend beyond them.
+
+Physical Environment
+--------------------
+
+Location
+   Private property owned by, or with explicit permission of, the operator. Flight
+   area is unobstructed in the planned flight envelope.
+
+Visibility
+   Daylight. PIC maintains unaided visual contact with the aircraft throughout the
+   mission.
+
+Wind
+   Steady wind below 8 m/s and gusts below 11 m/s at flight altitude.
+
+Precipitation
+   None. The aircraft is not weather-sealed.
+
+Altitude
+   Mission planned at or below 30 m above ground level.
+
+People and property
+   No uninvolved persons within the flight area. No flight over structures or
+   vehicles.
+
+Electromagnetic and Navigation Environment
+------------------------------------------
+
+GNSS
+   At least the minimum satellite count and HDOP threshold defined in system
+   requirements are available at the launch point and throughout the planned
+   mission.
+
+Magnetic
+   Launch location is free of large ferrous objects or strong magnetic
+   interference within a radius defined in system requirements.
+
+Radio
+   The command link operates in a band free of dominant interferers across the
+   planned flight area.
+
+Regulatory Environment
+----------------------
+
+Jurisdiction
+   United States. Operation is conducted as recreational flight under the
+   applicable FAA recreational flyer rules in effect at the time of operation. The
+   PIC is responsible for verifying current rules and any TFRs before each flight.
+
+Operator
+--------
+
+Training
+   The PIC is familiar with the system, the GCS, and the failsafe behaviors
+   described in :ref:`modes`. The PIC has completed the applicable FAA recreational
+   knowledge requirement.
+
+Authority
+   The PIC has ultimate authority and can override the aircraft at any time.
+
+Operational Concept
+===================
+
+This section describes a nominal mission end-to-end. It is the narrative spine of
+the document. Downstream system requirements will refine each step into testable
+behavior; the purpose here is to make the intent unambiguous.
+
+Mission Narrative
+-----------------
+
+The PIC selects a flight area satisfying the assumptions in :ref:`environment` and
+verifies the area is clear. At the GCS, the PIC plans a mission as an ordered
+sequence of waypoints, each specifying a position and altitude, and uploads it to
+the aircraft.
+
+The PIC then performs pre-flight checks. The aircraft reports its readiness via
+telemetry: battery state of charge above the configured launch threshold, GNSS fix
+acquired with sufficient quality, IMU and magnetometer calibrated, command link
+healthy, and the uploaded mission consistency-checked. Only when all readiness
+conditions are satisfied does the aircraft permit arming.
+
+The PIC arms the aircraft. Arming is an explicit, deliberate action and is
+rejected if any readiness condition has lapsed. Once armed, the aircraft remains
+on the ground awaiting the mission start command.
+
+The PIC issues the mission start command. The aircraft takes off vertically to the
+first waypoint altitude, then proceeds to the first waypoint. It transits between
+waypoints in sequence at a planned cruise speed, holding each waypoint for its
+configured dwell time. The PIC monitors the flight visually and via telemetry.
+
+On reaching the final waypoint, the aircraft transitions autonomously to a
+return-to-launch behavior: it climbs to a configured safe altitude if not already
+above it, transits to a point above the launch location, descends, and lands. The
+aircraft then disarms itself.
+
+At any point during the mission, the PIC may issue an abort command, which
+transitions the aircraft to a recovery mode appropriate to its current state. The
+PIC may also take direct manual control, which suspends autonomous behavior until
+the PIC explicitly returns control to the aircraft or lands manually.
+
+.. _modes:
+
+Modes and Contingency Concept
+=============================
+
+Neutros is modeled as a finite set of operating modes with defined transitions.
+This section names the modes and describes the philosophy of contingency handling.
+The specific transition conditions, timing, and decision thresholds are deferred to
+system requirements.
+
+Operating Modes
+---------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 1 2 2
+
+   * - Mode
+     - Description
+     - Entry
+   * - Disarmed
+     - Motors inhibited. Aircraft accepts mission upload, configuration, and
+       pre-flight queries.
+     - Power-on; after landing; after disarm command.
+   * - Armed-Idle
+     - Motors enabled but not commanded. Aircraft is on the ground awaiting
+       mission start.
+     - PIC arm command with all readiness conditions met.
+   * - Takeoff
+     - Vertical climb to initial mission altitude.
+     - Mission start command from Armed-Idle.
+   * - Mission
+     - Autonomous waypoint-to-waypoint flight.
+     - Completion of Takeoff.
+   * - Return-to-Launch
+     - Autonomous transit to launch point at safe altitude, followed by descent.
+     - Completion of mission; low-battery trigger; loss-of-link trigger; PIC abort
+       with valid position.
+   * - Land
+     - Controlled vertical descent at current position.
+     - Completion of Return-to-Launch; degraded-position trigger; PIC land command.
+   * - Manual
+     - Direct PIC control of attitude and throttle. Autonomy suspended.
+     - PIC manual-override command from any in-flight mode.
+   * - Failsafe-Hold
+     - Aircraft holds position and altitude awaiting PIC input or further
+       degradation.
+     - Recoverable fault that does not require immediate descent.
+
+Contingency Philosophy
+----------------------
+
+On detection of any fault classified as safety-relevant, the aircraft transitions
+to the safest available recovery mode given its current state and the nature of the
+fault. The ordering principle is:
+
+Position known and link healthy
+   Return-to-Launch.
+
+Position known but link lost
+   Return-to-Launch, on the assumption that returning to a known location is
+   preferable to landing in an unknown one.
+
+Position degraded or unknown
+   Land in place. A controlled descent at an uncertain location is preferable to
+   autonomous transit with degraded navigation.
+
+Imminent power exhaustion
+   Land in place, regardless of position quality.
+
+The PIC retains override authority in all modes except those in which override
+would itself be unsafe (for example, during the final seconds of an automatic
+landing). The set of overridable modes is defined in system requirements.
+
+Faults to be Handled
+--------------------
+
+The following fault classes are in scope for this revision. Each will be decomposed
+into specific detection criteria and response behaviors in system requirements.
+
+Low battery
+   State of charge below the configured RTL threshold triggers Return-to-Launch;
+   below the land-now threshold triggers Land.
+
+Loss of command link
+   No valid command-link message received within the configured timeout triggers
+   Return-to-Launch.
+
+Loss of GNSS or degraded position
+   Loss of fix, insufficient satellite count, or HDOP exceeding the configured
+   threshold triggers Land or Failsafe-Hold depending on current mode.
+
+IMU or attitude sensor fault
+   Detected inconsistency in attitude estimation triggers the most conservative
+   response available; in most cases this is Land.
+
+Geofence breach
+   Aircraft approaching the boundary of the configured operational volume triggers
+   Return-to-Launch.
+
+Operator abort
+   PIC abort command triggers the recovery mode appropriate to current state per
+   the contingency philosophy above.
+
+External Interfaces
+===================
+
+Three external interfaces are defined at the ConOps level. Their detailed
+specifications belong in interface control documents derived from this ConOps.
+
+PIC ↔ GCS
+   The human interface for mission planning, pre-flight, arming, mission start,
+   monitoring, and abort. Includes visual telemetry display and command entry.
+
+GCS ↔ Aircraft (Command Link)
+   Bidirectional wireless link. Carries mission upload, commands, and
+   configuration from GCS to aircraft; carries telemetry, health, and
+   acknowledgments from aircraft to GCS.
+
+Aircraft ↔ Operating Environment
+   Sensing interfaces (GNSS, magnetometer, barometer, IMU) and actuation
+   interfaces (motors). Treated here as an interface because the aircraft's
+   correctness depends on environmental conditions that are external inputs.
+
+Success Criteria
+================
+
+Neutros, at the conclusion of the work scoped by this ConOps, is considered
+successful when the following are demonstrably true:
+
+- A planned waypoint mission, uploaded from the GCS, is executed end-to-end
+  including takeoff, waypoint sequence, return-to-launch, and landing, repeatably
+  and within tolerances specified in system requirements.
+- Each fault class enumerated above is demonstrated to produce the specified
+  recovery behavior, verified by test.
+- Every behavior described in this ConOps is traceable to one or more system
+  requirements, and every system requirement is traceable to one or more tests.
+- Documentation — ConOps, system requirements, software requirements, design, test
+  plans, test results, and a hazard analysis appropriate to the system's scope —
+  exists and is internally consistent.
+
+Document Control
+================
+
+.. list-table::
+   :widths: 1 2
+
+   * - Document ID
+     - NTR-CONOPS-001
+   * - Revision
+     - 0.1 (initial draft)
+   * - Author
+     - Cory McKiel
+   * - Status
+     - Draft for review
+   * - Parent Document
+     - None (top-level)
+   * - Child Documents
+     - NTR-SYSREQ-001 (system requirements), to be authored
+
+Revision History
+----------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 1 1 3
+
+   * - Revision
+     - Date
+     - Description
+   * - 0.1
+     - 2026-05-21
+     - Initial draft establishing scope, actors, environment, operational concept,
+       modes, and contingency philosophy for the autonomous-waypoint-VLOS mission.
