@@ -19,7 +19,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "furo"
 
 # -- make sphinx-needs adapt to Furo dark mode ---------------------------
-html_static_path = ["_static"]
+html_static_path = ["_sphinx/_static"]
 html_css_files = ["needs_dark.css"]
 
 # -- PlantUML (sphinxcontrib-plantuml) ---------------------------------------
@@ -30,7 +30,7 @@ plantuml_output_format = "svg"
 
 # -- Breathe (Doxygen -> Sphinx bridge) --------------------------------------
 # Uncomment and point at your Doxygen XML once Doxygen is emitting it.
-breathe_projects = {"neutros-fc": "doxygen/xml"}
+breathe_projects = {"neutros-fc": "_sphinx/_doxygen/xml"}
 breathe_domain_by_extension = {"h": "c", "c": "c"}
 breathe_default_project = "neutros-fc"
 
@@ -54,8 +54,11 @@ needs_links = {
     "verifies":   dict(incoming="is verified by",    outgoing="verifies"),
 }
 
-needs_statuses = [
-    dict(name="draft",    description="Being written"),
-    dict(name="open",     description="Approved, not yet implemented"),
-    dict(name="done",     description="Implemented and verified"),
-]
+# status as a constrained field (replaces needs_statuses)
+needs_fields = {
+    "status": {
+        "description": "Workflow state of the need",
+        "schema": {"type": "string", "enum": ["draft", "open", "done"]},
+        "nullable": True,
+    },
+}

@@ -2,4 +2,4 @@ build/
 .DS_Store
 .venv
 docs/_build/
-docs/doxygen/xml/
+docs/_sphinx/_doxygen/xml/

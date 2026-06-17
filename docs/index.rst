@@ -5,6 +5,6 @@ neutros-fc documentation
    :maxdepth: 2
    :caption: Contents:
 
-   NTR-CONOPS-001_Neutros_ConOps_v0.1
-   api
-   smoke_test
+   /conops/NTR-CONOPS-001_Neutros_ConOps_v0.1
+   /_sphinx/api
+   /_sphinx/smoke_test
