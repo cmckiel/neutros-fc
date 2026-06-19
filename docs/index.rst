@@ -12,3 +12,4 @@ neutros-fc documentation
    /software/llr/NTR-LLR-IMU-001_IMU_Driver_LLR
    /software/design/NTR-DD-IMU-001_IMU_Driver_Design
    /system/NTR-SYSREQ-001_System_Requirements
+   /_generated/trace_tags.rst
