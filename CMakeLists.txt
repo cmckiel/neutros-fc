@@ -2,6 +2,17 @@
 cmake_minimum_required(VERSION 3.20)
 project(neutros-fc C CXX)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+include(Doxygen)
+include(GenerateTrace)
+include(CheckTrace)
+include(Sphinx)
+
+add_doxygen_target()
+add_generate_trace_target()
+add_check_trace_target()
+add_sphinx_target()
+
 add_subdirectory(src)
 
 if (TARGET_BUILD)

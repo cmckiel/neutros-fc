@@ -90,3 +90,6 @@ needs_fields["rationale"] = {
 }
 
 needs_id_regex = "^[A-Z0-9_-]{5,}"   # uppercase, digits, underscore, hyphen, ≥5 chars
+
+needs_build_json = True
+needs_reproducible_json = True
