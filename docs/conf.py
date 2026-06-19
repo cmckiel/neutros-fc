@@ -52,6 +52,7 @@ needs_links = {
     "refines":    dict(incoming="is refined by",     outgoing="refines"),
     "implements": dict(incoming="is implemented by", outgoing="implements"),
     "verifies":   dict(incoming="is verified by",    outgoing="verifies"),
+    "realizes":   dict(incoming="is realized by",    outgoing="realizes"),
 }
 
 # status as a constrained field (replaces needs_statuses)
@@ -61,4 +62,19 @@ needs_fields = {
         "schema": {"type": "string", "enum": ["draft", "open", "done"]},
         "nullable": True,
     },
+}
+
+needs_fields["level"] = {
+    "description": "V-model ordering rank, derived from type",
+    "schema": {"type": "integer"},
+    "predicates": [
+        ("type == 'conops'", 0),
+        ("type == 'sysreq'", 1),
+        ("type == 'hlr'",    2),
+        ("type == 'llr'",    3),
+        ("type == 'design'", 4),
+        ("type == 'impl'",   5),
+        ("type == 'test'",   6),
+    ],
+    "default": 99,
 }
