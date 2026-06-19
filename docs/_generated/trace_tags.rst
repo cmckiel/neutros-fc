@@ -7,11 +7,23 @@ Code Trace Tags
 Implementations
 ---------------
 
-.. impl:: src/flight/sensors/imu/include/imu.h:7
-   :id: IMPL_LLR_IMU_001
+.. impl:: imu_init()
+   :id: IMPL_LLR_IMU_001_imu_init
    :implements: LLR_IMU_001
 
-   Found in ``src/flight/sensors/imu/include/imu.h`` at line 7.
+   Implemented by :c:func:`imu_init` in ``src/flight/sensors/imu/include/imu.h`` (line 9).
 
-Tests
------
+.. impl:: imu_mpu6050_init_helper()
+   :id: IMPL_LLR_IMU_001_imu_mpu6050_init_helper
+   :implements: LLR_IMU_001
+
+   Implemented by :c:func:`imu_mpu6050_init_helper` in ``src/flight/sensors/imu/src/imu_mpu6050.c`` (line 89).
+
+.. impl:: imu_mpu6050_get_angular_acceleration()
+   :id: IMPL_LLR_IMU_002_imu_mpu6050_get_angular_acceleration
+   :implements: LLR_IMU_002
+
+   Implemented by :c:func:`imu_mpu6050_get_angular_acceleration` in ``src/flight/sensors/imu/src/imu_mpu6050.c`` (line 104).
+
+Verifications
+-------------

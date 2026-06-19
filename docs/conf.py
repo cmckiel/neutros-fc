@@ -19,7 +19,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "furo"
 
 # -- make sphinx-needs adapt to Furo dark mode ---------------------------
-html_static_path = ["_sphinx/_static"]
+html_static_path = ["_sphinx/_needs/_static"]
 html_css_files = ["needs_dark.css"]
 
 # -- PlantUML (sphinxcontrib-plantuml) ---------------------------------------
@@ -30,7 +30,7 @@ plantuml_output_format = "svg"
 
 # -- Breathe (Doxygen -> Sphinx bridge) --------------------------------------
 # Uncomment and point at your Doxygen XML once Doxygen is emitting it.
-breathe_projects = {"neutros-fc": "_sphinx/_doxygen/xml"}
+breathe_projects = {"neutros-fc": "_sphinx/_breathe/_doxygen/xml"}
 breathe_domain_by_extension = {"h": "c", "c": "c"}
 breathe_default_project = "neutros-fc"
 

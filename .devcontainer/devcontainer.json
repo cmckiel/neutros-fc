@@ -7,7 +7,8 @@
             "ms-vscode.cmake-tools",
             "ms-vscode.cpptools",
             "ms-vscode.cpptools-extension-pack",
-            "twxs.cmake"
+            "twxs.cmake",
+            "trond-snekvik.simple-rst"
         ],
         "settings": {
             "cmake.useCMakePresets": "always",

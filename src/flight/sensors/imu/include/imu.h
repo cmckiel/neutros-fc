@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 /**
+ * @brief Initializes the IMU.
+ *
  * @impl LLR_IMU_001
  */
 bool imu_init();

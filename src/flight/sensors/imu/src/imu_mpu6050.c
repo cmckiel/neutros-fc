@@ -83,11 +83,26 @@ void reset_i2c_transaction(hal_i2c_txn_t *txn)
 	txn->rx_data[5] = 0; // Cheating for now. @todo memset()
 }
 
-bool imu_mpu6050_init()
+/**
+ * @brief Helps init the IMU
+ *
+ * @impl LLR_IMU_001
+ */
+static bool imu_mpu6050_init_helper()
 {
 	return true;
 }
 
+bool imu_mpu6050_init()
+{
+	return imu_mpu6050_init_helper();
+}
+
+/**
+ * @brief gets the angular acceleration from the imu
+ *
+ * @impl LLR_IMU_002
+ */
 bool imu_mpu6050_get_angular_acceleration(float *gx_dps_ptr, float *gy_dps_ptr, float *gz_dps_ptr)
 {
 	bool res = false;
