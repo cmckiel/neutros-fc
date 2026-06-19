@@ -215,10 +215,10 @@ def emit_impl(lines, record, counter, repo_root):
     rel = relpath(path, repo_root)
     anchor = sanitize(func_name) if func_name else sanitize(path.stem)
     for llr_id in llr_ids:
-        base = f"IMPL_{llr_id}_{anchor}"
+        base = f"IMPL-{llr_id}-{anchor}"
         counter[base] += 1
         n = counter[base]
-        need_id = base if n == 1 else f"{base}_{n}"
+        need_id = base if n == 1 else f"{base}-{n}"
         title = f"{func_name}()" if func_name else f"{rel}:{line_no}"
         lines += [
             f".. impl:: {title}",

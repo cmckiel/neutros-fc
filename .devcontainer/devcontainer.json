@@ -17,6 +17,10 @@
         }
     }
   },
+  "containerEnv": {
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.12"

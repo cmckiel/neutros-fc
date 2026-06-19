@@ -2,12 +2,25 @@
     "version": 3,
     "configurePresets": [
         {
+            "name": "neutros-fc-desktop",
+            "displayName": "Neutros FC Desktop (Debug)",
+            "description": "Build for desktop simulation with debug info",
+            "binaryDir": "${sourceDir}/build/desktop-debug",
+            "cacheVariables": {
+                "DESKTOP_BUILD": "ON",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_STANDARD": "14"
+            }
+        },
+        {
             "name": "neutros-fc",
             "displayName": "Neutros FC (Release)",
             "description": "Build for STM32F446 target optimized",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/build/target-release",
             "toolchainFile": "${sourceDir}/cmake/CMakeToolChain.stm32f446.cmake",
             "cacheVariables": {
+                "TARGET_BUILD": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/lib/hal/install/release",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
@@ -19,6 +32,19 @@
             "name": "neutros-fc",
             "displayName": "Build Neutros FC (Release)",
             "configurePreset": "neutros-fc"
+        },
+        {
+            "name": "neutros-fc-desktop",
+            "displayName": "Build Neutros FC Desktop",
+            "configurePreset": "neutros-fc-desktop"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "neutros-fc-desktop-test",
+            "displayName": "Desktop Unit Tests",
+            "configurePreset": "neutros-fc-desktop",
+            "output": { "outputOnFailure": true }
         }
     ]
 }

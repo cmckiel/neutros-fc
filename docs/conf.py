@@ -78,3 +78,15 @@ needs_fields["level"] = {
     ],
     "default": 99,
 }
+
+needs_fields["method"] = {
+    "description": "Verification method (test, GTest, pytest, analysis, ...)",
+    "nullable": True,
+}
+
+needs_fields["rationale"] = {
+    "description": "Why this requirement exists.",
+    "nullable": True,
+}
+
+needs_id_regex = "^[A-Z0-9_-]{5,}"   # uppercase, digits, underscore, hyphen, ≥5 chars
