@@ -7,12 +7,27 @@
             "ms-vscode.cmake-tools",
             "ms-vscode.cpptools",
             "ms-vscode.cpptools-extension-pack",
-            "twxs.cmake"
+            "twxs.cmake",
+            "trond-snekvik.simple-rst"
         ],
         "settings": {
             "cmake.useCMakePresets": "always",
-            "cmake.configureOnOpen": false
+            "cmake.configureOnOpen": false,
+            "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python"
         }
     }
-  }
+  },
+  "containerEnv": {
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  // Java (for PlantUML), plantuml, doxygen, graphviz
+  "onCreateCommand": "apt-get update && apt-get install -y default-jre plantuml doxygen graphviz",
+  // Install the pinned docs toolchain
+  "postCreateCommand": "python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt"
 }

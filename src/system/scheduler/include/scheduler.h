@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 
+/**
+ * @brief Initialize the scheduler
+ */
 bool scheduler_init();
 void scheduler_exec();
 
