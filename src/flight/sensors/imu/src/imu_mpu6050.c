@@ -1,11 +1,18 @@
 #include "imu_mpu6050.h"
 #include "hal/i2c.h"
+#include "hal/systick.h"
+#include "time_util.h"
 
 #include <stdbool.h>
 
+// Device Address
 #define MPU_6050_ADDR       0x68
+
+// Device Registers
 #define MPU_PWR_MGMT_1_REG  0x6B
 #define MPU_GYRO_XOUT_H_REG 0x43
+
+// Register Values
 #define MPU_GYRO_WAKE       0x01
 #define MPU_GYRO_SLEEP      0x40
 
@@ -83,19 +90,41 @@ void reset_i2c_transaction(hal_i2c_txn_t *txn)
 	txn->rx_data[5] = 0; // Cheating for now. @todo memset()
 }
 
-/**
- * @brief Helps init the IMU
- *
- * @impl LLR_IMU_001
- */
-static bool imu_mpu6050_init_helper()
+static bool await_transaction(const hal_i2c_txn_t *txn, uint32_t timeout)
 {
-	return true;
+	uint32_t time_start = hal_get_tick();
+	while (txn &&
+				 txn->processing_state != HAL_I2C_TXN_STATE_COMPLETED &&
+				 !time_util_timed_out(time_start, hal_get_tick(), timeout))
+	{
+		hal_status_t status = hal_i2c_transaction_servicer();
+		if (status != HAL_STATUS_OK)
+		{
+			break;
+		}
+		hal_delay_ms(1);
+	}
+
+	return txn && txn->processing_state == HAL_I2C_TXN_STATE_COMPLETED;
 }
 
 bool imu_mpu6050_init()
 {
-	return imu_mpu6050_init_helper();
+	// self ID
+		// configure txn
+		// submit txn
+		// poll completion
+		// valididate results
+
+	// self test
+
+	// config
+
+	// wake gyro
+
+	// set gyro X as clock source
+
+	return true;
 }
 
 /**

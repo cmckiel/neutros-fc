@@ -15,5 +15,6 @@ target_link_libraries(
   PRIVATE
   Hal::stm32f4_hal
   blackboard
+  time_util
 )
 
