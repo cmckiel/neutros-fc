@@ -11,8 +11,8 @@
 task_init_t task_init[] = {
   i2c_servicer_init,
   c2_init,
-  imu_init,
   telemetry_init,
+  imu_init,
   motor_init,
 };
 
