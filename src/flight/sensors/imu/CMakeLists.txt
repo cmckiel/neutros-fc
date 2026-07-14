@@ -2,6 +2,8 @@ add_library(
   imu STATIC
   src/imu.c
   src/imu_mpu6050.c
+  src/mpu6050_init.c
+  src/mpu6050.c
 )
 
 target_include_directories(
