@@ -14,13 +14,13 @@ typedef struct {
 } mpu6050_self_test_values_t;
 
 typedef struct {
-	uint16_t xg;
-	uint16_t yg;
-	uint16_t zg;
+	int16_t xg;
+	int16_t yg;
+	int16_t zg;
 
-	uint16_t xa;
-	uint16_t ya;
-	uint16_t za;
+	int16_t xa;
+	int16_t ya;
+	int16_t za;
 } mpu6050_imu_values_t;
 
 typedef enum {
@@ -46,6 +46,7 @@ typedef enum {
 #define MPU_GYRO_XOUT_H_REG  0x43
 #define MPU_WHOAMI_REG       0x75
 #define MPU_SELF_TEST_X_REG  0x0D
+#define MPU_CONFIG_REG       0x1A
 #define MPU_GYRO_CONFIG_REG  0x1B
 #define MPU_ACCEL_CONFIG_REG 0x1C
 
@@ -55,6 +56,7 @@ typedef enum {
 #define MPU_GYRO_FS_SEL_2000 0x18
 
 // Masks
+#define MPU_CONFIG_DLPF_Mask         0x03
 #define MPU_GYRO_CONFIG_FS_SEL_Mask  0x18
 #define MPU_ACCEL_CONFIG_FS_SEL_Mask 0x18
 

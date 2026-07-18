@@ -22,9 +22,9 @@ static hal_i2c_txn_t imu_read_gyro = {
 	// Immutable once submitted.
 	.target_addr = MPU_6050_ADDR,
 	.i2c_op = HAL_I2C_OP_WRITE_READ,
-	.tx_data = { MPU_GYRO_XOUT_H_REG },
+	.tx_data = { MPU_ACCEL_XOUT_H_REG },
 	.expected_bytes_to_tx = 1,
-	.expected_bytes_to_rx = 6, // Burst read starting at XOUT_H
+	.expected_bytes_to_rx = 14, // Burst read starting at XOUT_H
 
 	// Poll to determine completion status.
 	.processing_state = HAL_I2C_TXN_STATE_CREATED,
@@ -50,7 +50,7 @@ static bool reset_i2c_transaction(hal_i2c_txn_t *txn)
 	// txn->expected_bytes_to_rx = 0;
 
 	// Reset buffers
-	memset(txn->tx_data, 0, sizeof(txn->tx_data));
+	// memset(txn->tx_data, 0, sizeof(txn->tx_data));
 	memset(txn->rx_data, 0, sizeof(txn->rx_data));
 
 	// Reset result fields
@@ -70,6 +70,12 @@ static bool grade_self_test(float percent_diff_from_factory)
 
 bool imu_mpu6050_init()
 {
+	if (!mpu6050_reset())
+	{
+		printf("reset failed!\r\n");
+		return false;
+	}
+
 	if (!mpu6050_whoami())
 	{
 		printf("whoami failed!\r\n");
@@ -117,12 +123,20 @@ bool imu_mpu6050_init()
 
 	if (!mpu6050_set_fs_sel_gyro(MPU6050_FS_SEL_GYRO_2000_DPS))
 	{
-		// return false;
+		printf("Failed to set gyro wake/sleep!\r\n");
+		return false;
+	}
+
+	if (!mpu6050_set_dlpf(2))
+	{
+		printf("Failed to set low pass filter!\r\n");
+		return false;
 	}
 
 	if (!mpu6050_calc_gyro_offsets(&xg_offset, &yg_offset, &zg_offset))
 	{
-		// return false;
+		printf("Failed to calc gyro offsets!\r\n");
+		return false;
 	}
 
 	printf("Offsets:\r\n");
@@ -136,37 +150,27 @@ bool imu_mpu6050_init()
 
 
 
-// @TODO why is this not reading gyro consistently??
 /**
  * @brief gets the angular acceleration from the imu
  *
  * @impl LLR_IMU_002
  */
-bool imu_mpu6050_get_angular_acceleration(float *gx_dps_ptr, float *gy_dps_ptr, float *gz_dps_ptr)
+bool imu_mpu6050_get_imu_data(float *xa, float *ya, float *za, float *xg, float *yg, float *zg)
 {
 	bool res = false;
 
 	if (imu_read_gyro.processing_state == HAL_I2C_TXN_STATE_COMPLETED)
 	{
-		// Update my display data.
-		int16_t gx = (imu_read_gyro.rx_data[0] << 8) | imu_read_gyro.rx_data[1];
-		int16_t gy = (imu_read_gyro.rx_data[2] << 8) | imu_read_gyro.rx_data[3];
-		int16_t gz = (imu_read_gyro.rx_data[4] << 8) | imu_read_gyro.rx_data[5];
+		mpu6050_imu_values_t imu;
+		mpu6050_unpack_imu_values(imu_read_gyro.rx_data, 14, &imu);
 
-		// gx_dps = (float)(gx - xg_offset) / 16.4f;
-		// gy_dps = (float)(gy - yg_offset) / 16.4f;
-		// gz_dps = (float)(gz - zg_offset) / 16.4f;
+		*xg = (float)(imu.xg - xg_offset) / 16.4f;
+		*yg = (float)(imu.yg - yg_offset) / 16.4f;
+		*zg = (float)(imu.zg - zg_offset) / 16.4f;
 
-		gx_dps = (float)(gx) / 16.4f;
-		gy_dps = (float)(gy) / 16.4f;
-		gz_dps = (float)(gz) / 16.4f;
-
-		if (gx_dps_ptr && gy_dps_ptr && gz_dps_ptr)
-		{
-			*gx_dps_ptr = gx_dps;
-			*gy_dps_ptr = gy_dps;
-			*gz_dps_ptr = gz_dps;
-		}
+		*xa = (float)imu.xa / 4096.0f;
+		*ya = (float)imu.ya / 4096.0f;
+		*za = (float)imu.za / 4096.0f;
 
 		reset_i2c_transaction(&imu_read_gyro);
 

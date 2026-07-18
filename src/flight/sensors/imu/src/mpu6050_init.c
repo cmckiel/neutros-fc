@@ -421,6 +421,35 @@ static bool mpu6050_perform_self_test_on_axis(uint8_t config_reg_addr, uint8_t c
 /***************************************************/
 // PUBLIC FUNCTIONS
 /***************************************************/
+bool mpu6050_reset()
+{
+	uint32_t timeout = 10;
+
+	reset_i2c_transaction();
+
+	// Read the WHOAMI register
+	txn.i2c_op = HAL_I2C_OP_WRITE;
+	txn.expected_bytes_to_tx = 2;
+	txn.tx_data[0] = MPU_PWR_MGMT_1_REG;
+	txn.tx_data[1] = 0x80;
+
+	if (!perform_transaction(timeout))
+	{
+		// @todo log
+		return false;
+	}
+
+	// Validate
+	if (txn.actual_bytes_transmitted != 2)
+	{
+		return false;
+	}
+
+	hal_delay_ms(100);
+
+	return true;
+}
+
 bool mpu6050_whoami()
 {
 	uint32_t timeout = 10;
@@ -493,6 +522,8 @@ bool mpu6050_set_clock_source_gyro_x()
 		return false;
 	}
 
+	hal_delay_ms(50);
+
 	return true;
 }
 
@@ -554,9 +585,6 @@ bool mpu6050_perform_self_test(float *percent_diff_ft_xg, float *percent_diff_ft
 	return true;
 }
 
-/**
- * This function causes the MPU to crash?
- */
 bool mpu6050_set_fs_sel_gyro(mpu6050_fs_sel_gyro_t fs_select)
 {
 	reset_i2c_transaction();
@@ -585,7 +613,6 @@ bool mpu6050_set_fs_sel_gyro(mpu6050_fs_sel_gyro_t fs_select)
 // Must put into FS_SEL first
 bool mpu6050_calc_gyro_offsets(int16_t *xg_offset, int16_t *yg_offset, int16_t *zg_offset)
 {
-	// RAW ADC CAN BE NEGATIVE!!!!!! @TODO
 	int16_t xg_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
 	int16_t yg_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
 	int16_t zg_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
@@ -661,4 +688,30 @@ bool mpu6050_calc_accel_offsets(float *xa_offset, float *ya_offset, float *za_of
 	// return the average
 
 	return true;
+}
+
+bool mpu6050_set_dlpf(uint8_t config)
+{
+	reset_i2c_transaction();
+
+	// message to set gyro config
+	txn.i2c_op = HAL_I2C_OP_WRITE;
+	txn.expected_bytes_to_tx = 2;
+	txn.tx_data[0] = MPU_CONFIG_REG;
+	txn.tx_data[1] |= (config & MPU_CONFIG_DLPF_Mask);
+
+	uint32_t timeout = 10;
+	if (!perform_transaction(timeout))
+	{
+		return false;
+	}
+
+	// valididate results
+	if (txn.actual_bytes_transmitted != 2)
+	{
+		return false;
+	}
+
+	return true;
+
 }

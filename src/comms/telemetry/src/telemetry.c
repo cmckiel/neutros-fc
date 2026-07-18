@@ -55,10 +55,13 @@ bool telemetry_exec()
     float x = imu_blackboard_data->public_data.gyroscope.x_angular_velocity_dps;
     float y = imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps;
     float z = imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps;
+    float xa = imu_blackboard_data->public_data.accelerometer.x_accel;
+    float ya = imu_blackboard_data->public_data.accelerometer.y_accel;
+    float za = imu_blackboard_data->public_data.accelerometer.z_accel;
     uint8_t motor_output = map(c2_blackboard_data->public_data.commanded_motor_1_duty_cycle);
 
     // printf("\033[2J\033[H");
-    printf("{\"motor\":\"%u\",\"imu\":{\"gx\":\"%.2f\",\"gy\":\"%.2f\",\"gz\":\"%.2f\"}}\r\n", motor_output, x, y, z);
+    printf("{\"motor\":\"%u\",\"imu\":{\"gx\":\"%.2f\",\"gy\":\"%.2f\",\"gz\":\"%.2f\",\"ax\":\"%.2f\",\"ay\":\"%.2f\",\"az\":\"%.2f\"}}\r\n", motor_output, x, y, z, xa, ya, za);
 
     // snprintf((char*)imu_message, sizeof(imu_message), "\033[2J\033[H imu_data:{gx_dps: %.2f, gy_dps: %.2f, gz_dps: %.2f}", x, y, z);
     // hal_status_t status = hal_uart_write(uart_channel, imu_message, sizeof(imu_message), &bytes_written);
