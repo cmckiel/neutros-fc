@@ -14,41 +14,9 @@ static float gx_dps = 0;
 static float gy_dps = 0;
 static float gz_dps = 0;
 
-static hal_i2c_txn_t imu_read_pwr_mode = {
-	// Immutable once submitted.
-	.target_addr = MPU_6050_ADDR,
-	.i2c_op = HAL_I2C_OP_WRITE_READ,
-	.tx_data = { MPU_PWR_MGMT_1_REG },
-	.expected_bytes_to_tx = 1,
-	.expected_bytes_to_rx = 1,
-
-	// Poll to determine completion status.
-	.processing_state = HAL_I2C_TXN_STATE_CREATED,
-
-	// Post transaction completion results.
-	.transaction_result = HAL_I2C_TXN_RESULT_NONE,
-	.actual_bytes_received = 0,
-	.actual_bytes_transmitted = 0,
-	.rx_data = {0},
-};
-
-static hal_i2c_txn_t imu_wake_gyro = {
-	// Immutable once submitted.
-	.target_addr = MPU_6050_ADDR,
-	.i2c_op = HAL_I2C_OP_WRITE,
-	.tx_data = { MPU_PWR_MGMT_1_REG, MPU_GYRO_WAKE},
-	.expected_bytes_to_tx = 2,
-	.expected_bytes_to_rx = 0,
-
-	// Poll to determine completion status.
-	.processing_state = HAL_I2C_TXN_STATE_CREATED,
-
-	// Post transaction completion results.
-	.transaction_result = HAL_I2C_TXN_RESULT_NONE,
-	.actual_bytes_received = 0,
-	.actual_bytes_transmitted = 0,
-	.rx_data = {0},
-};
+static int16_t xg_offset = 0;
+static int16_t yg_offset = 0;
+static int16_t zg_offset = 0;
 
 static hal_i2c_txn_t imu_read_gyro = {
 	// Immutable once submitted.
@@ -68,8 +36,6 @@ static hal_i2c_txn_t imu_read_gyro = {
 	.rx_data = {0},
 };
 
-static hal_i2c_txn_t *current_transaction = &imu_read_pwr_mode;
-
 static bool reset_i2c_transaction(hal_i2c_txn_t *txn)
 {
 	if (!txn)
@@ -78,10 +44,10 @@ static bool reset_i2c_transaction(hal_i2c_txn_t *txn)
 	}
 
 	// Reset control fields
-	txn->target_addr = MPU_6050_ADDR;
-	txn->i2c_op = HAL_I2C_OP_WRITE;
-	txn->expected_bytes_to_tx = 0;
-	txn->expected_bytes_to_rx = 0;
+	// txn->target_addr = MPU_6050_ADDR;
+	// txn->i2c_op = HAL_I2C_OP_WRITE;
+	// txn->expected_bytes_to_tx = 0;
+	// txn->expected_bytes_to_rx = 0;
 
 	// Reset buffers
 	memset(txn->tx_data, 0, sizeof(txn->tx_data));
@@ -143,9 +109,34 @@ bool imu_mpu6050_init()
 	printf("za: %0.4f %s\r\n", za_percent_diff_from_factory, grade_self_test(za_percent_diff_from_factory) ? "PASS" : "FAIL");
 	printf("\r\n");
 
+	if (!grade_self_test(xg_percent_diff_from_factory) || !grade_self_test(yg_percent_diff_from_factory) || !grade_self_test(zg_percent_diff_from_factory) ||
+			!grade_self_test(xa_percent_diff_from_factory) || !grade_self_test(ya_percent_diff_from_factory) || !grade_self_test(za_percent_diff_from_factory))
+	{
+		return false;
+	}
+
+	if (!mpu6050_set_fs_sel_gyro(MPU6050_FS_SEL_GYRO_2000_DPS))
+	{
+		// return false;
+	}
+
+	if (!mpu6050_calc_gyro_offsets(&xg_offset, &yg_offset, &zg_offset))
+	{
+		// return false;
+	}
+
+	printf("Offsets:\r\n");
+	printf("xg_offset: %d\r\n", xg_offset);
+	printf("yg_offset: %d\r\n", yg_offset);
+	printf("zg_offset: %d\r\n", zg_offset);
+	printf("\r\n");
+
 	return true;
 }
 
+
+
+// @TODO why is this not reading gyro consistently??
 /**
  * @brief gets the angular acceleration from the imu
  *
@@ -155,72 +146,35 @@ bool imu_mpu6050_get_angular_acceleration(float *gx_dps_ptr, float *gy_dps_ptr, 
 {
 	bool res = false;
 
-	// If we have a new transaction, submit it.
-	if (current_transaction->processing_state == HAL_I2C_TXN_STATE_CREATED)
+	if (imu_read_gyro.processing_state == HAL_I2C_TXN_STATE_COMPLETED)
 	{
-		hal_i2c_submit_transaction(current_transaction);
+		// Update my display data.
+		int16_t gx = (imu_read_gyro.rx_data[0] << 8) | imu_read_gyro.rx_data[1];
+		int16_t gy = (imu_read_gyro.rx_data[2] << 8) | imu_read_gyro.rx_data[3];
+		int16_t gz = (imu_read_gyro.rx_data[4] << 8) | imu_read_gyro.rx_data[5];
+
+		// gx_dps = (float)(gx - xg_offset) / 16.4f;
+		// gy_dps = (float)(gy - yg_offset) / 16.4f;
+		// gz_dps = (float)(gz - zg_offset) / 16.4f;
+
+		gx_dps = (float)(gx) / 16.4f;
+		gy_dps = (float)(gy) / 16.4f;
+		gz_dps = (float)(gz) / 16.4f;
+
+		if (gx_dps_ptr && gy_dps_ptr && gz_dps_ptr)
+		{
+			*gx_dps_ptr = gx_dps;
+			*gy_dps_ptr = gy_dps;
+			*gz_dps_ptr = gz_dps;
+		}
+
+		reset_i2c_transaction(&imu_read_gyro);
+
+		res = true;
 	}
-	// If the transaction is complete and some basic expectations check out, process the data and reset.
-	else if (current_transaction->processing_state == HAL_I2C_TXN_STATE_COMPLETED)
+	else if (imu_read_gyro.processing_state == HAL_I2C_TXN_STATE_CREATED)
 	{
-		// Determine next transaction.
-		if (current_transaction == &imu_read_pwr_mode)
-		{
-			// Just received the results of sleep mode.
-			uint8_t pwr_mode = imu_read_pwr_mode.rx_data[0];
-			if (pwr_mode == MPU_GYRO_SLEEP)
-			{
-				// If it is sleeping we need to wake it.
-				current_transaction = &imu_wake_gyro;
-			}
-			else if (pwr_mode == MPU_GYRO_WAKE)
-			{
-				current_transaction = &imu_read_gyro;
-			}
-			// Reset our transaction now that it is through.
-			reset_i2c_transaction(&imu_read_pwr_mode);
-		}
-		else if (current_transaction == &imu_wake_gyro)
-		{
-			// Read back what we wrote.
-			current_transaction = &imu_read_pwr_mode;
-			reset_i2c_transaction(&imu_wake_gyro);
-		}
-		else if (current_transaction == &imu_read_gyro)
-		{
-			if (imu_read_gyro.transaction_result == HAL_I2C_TXN_RESULT_SUCCESS)
-			{
-				// Update my display data.
-				int16_t gx = (imu_read_gyro.rx_data[0] << 8) | imu_read_gyro.rx_data[1];
-				int16_t gy = (imu_read_gyro.rx_data[2] << 8) | imu_read_gyro.rx_data[3];
-				int16_t gz = (imu_read_gyro.rx_data[4] << 8) | imu_read_gyro.rx_data[5];
-
-				gx_dps = (float)gx / 131.0f;
-				gy_dps = (float)gy / 131.0f;
-				gz_dps = (float)gz / 131.0f;
-
-				res = true;
-			}
-			else
-			{
-				current_transaction = &imu_read_pwr_mode;
-			}
-
-			reset_i2c_transaction(&imu_read_gyro);
-		}
-		else
-		{
-			// We don't know what transaction that was, reset back to read pwr.
-			reset_i2c_transaction(&imu_read_pwr_mode);
-			current_transaction = &imu_read_pwr_mode;
-		}
-	}
-
-	if (gx_dps_ptr && gy_dps_ptr && gz_dps_ptr)
-	{
-		*gx_dps_ptr = gx_dps;
-		*gy_dps_ptr = gy_dps;
-		*gz_dps_ptr = gz_dps;
+		hal_i2c_submit_transaction(&imu_read_gyro);
 	}
 
 	return res;

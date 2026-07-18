@@ -26,6 +26,12 @@ bool imu_exec()
     imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps = gy_dps;
     imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps = gz_dps;
   }
+  else
+  {
+    imu_blackboard_data->public_data.gyroscope.x_angular_velocity_dps = 0;
+    imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps = 0;
+    imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps = 0;
+  }
 
   return false;
 }
