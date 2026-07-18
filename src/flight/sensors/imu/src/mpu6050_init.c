@@ -677,15 +677,69 @@ bool mpu6050_calc_gyro_offsets(int16_t *xg_offset, int16_t *yg_offset, int16_t *
 	return true;
 }
 
-bool mpu6050_calc_accel_offsets(float *xa_offset, float *ya_offset, float *za_offset)
+bool mpu6050_calc_accel_offsets(int16_t *xa_offset, int16_t *ya_offset, int16_t *za_offset)
 {
-	// query accel data
+	int16_t xa_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
+	int16_t ya_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
+	int16_t za_data[MPU_OFFSET_AVERAGE_SAMPLE_SIZE] = {0};
 
-	// do that 500+ times
+	// query accel data
+	// 500+ times
+	for (int i = 0; i < MPU_OFFSET_AVERAGE_SAMPLE_SIZE; ++i)
+	{
+		// query gyro data
+		reset_i2c_transaction();
+
+		// message to burst read accel
+		txn.i2c_op = HAL_I2C_OP_WRITE_READ;
+		txn.expected_bytes_to_tx = 1;
+		txn.expected_bytes_to_rx = 6;
+		txn.tx_data[0] = MPU_ACCEL_XOUT_H_REG;
+
+		uint32_t timeout = 10;
+		if (!perform_transaction(timeout))
+		{
+			return false;
+		}
+
+		// valididate results
+		if (!(txn.actual_bytes_transmitted == 1 && txn.actual_bytes_received == 6))
+		{
+			return false;
+		}
+
+		// unpack the high and low bytes into int16_t
+		xa_data[i] = (txn.rx_data[0] << 8) | txn.rx_data[1];
+		ya_data[i] = (txn.rx_data[2] << 8) | txn.rx_data[3];
+		za_data[i] = (txn.rx_data[4] << 8) | txn.rx_data[5];
+		za_data[i] -= 4096; // account for 1g at rest vertically, assumes +/- 8g
+	}
 
 	// take the average
+	int32_t xa_sum = 0;
+	int32_t ya_sum = 0;
+	int32_t za_sum = 0;
+	for (int i = 0; i < MPU_OFFSET_AVERAGE_SAMPLE_SIZE; ++i)
+	{
+		xa_sum += (int32_t)xa_data[i];
+		ya_sum += (int32_t)ya_data[i];
+		za_sum += (int32_t)za_data[i];
+	}
+
+	int32_t xa_avg = xa_sum / MPU_OFFSET_AVERAGE_SAMPLE_SIZE;
+	int32_t ya_avg = ya_sum / MPU_OFFSET_AVERAGE_SAMPLE_SIZE;
+	int32_t za_avg = za_sum / MPU_OFFSET_AVERAGE_SAMPLE_SIZE;
+
+	// Check for null
+	if (!xa_offset || !ya_offset || !za_offset)
+	{
+		return false;
+	}
 
 	// return the average
+	*xa_offset = (int16_t)xa_avg;
+	*ya_offset = (int16_t)ya_avg;
+	*za_offset = (int16_t)za_avg;
 
 	return true;
 }

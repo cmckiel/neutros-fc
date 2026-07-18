@@ -10,9 +10,10 @@
 #include <stdio.h>
 #include <math.h>
 
-static float gx_dps = 0;
-static float gy_dps = 0;
-static float gz_dps = 0;
+// Prebaked in - calibrated on level surface.
+static int16_t xa_offset = -9;
+static int16_t ya_offset = 1;
+static int16_t za_offset = 443;
 
 static int16_t xg_offset = 0;
 static int16_t yg_offset = 0;
@@ -145,10 +146,19 @@ bool imu_mpu6050_init()
 	printf("zg_offset: %d\r\n", zg_offset);
 	printf("\r\n");
 
+	// if (!mpu6050_calc_accel_offsets(&xa_offset, &ya_offset, &za_offset))
+	// {
+	// 	printf("Failed to calc accel offsets!\r\n");
+	// 	return false;
+	// }
+
+	printf("xa_offset: %d\r\n", xa_offset);
+	printf("ya_offset: %d\r\n", ya_offset);
+	printf("za_offset: %d\r\n", za_offset);
+	printf("\r\n");
+
 	return true;
 }
-
-
 
 /**
  * @brief gets the angular acceleration from the imu
@@ -168,9 +178,9 @@ bool imu_mpu6050_get_imu_data(float *xa, float *ya, float *za, float *xg, float 
 		*yg = (float)(imu.yg - yg_offset) / 16.4f;
 		*zg = (float)(imu.zg - zg_offset) / 16.4f;
 
-		*xa = (float)imu.xa / 4096.0f;
-		*ya = (float)imu.ya / 4096.0f;
-		*za = (float)imu.za / 4096.0f;
+		*xa = (float)(imu.xa - xa_offset) / 4096.0f;
+		*ya = (float)(imu.ya - ya_offset) / 4096.0f;
+		*za = (float)(imu.za - za_offset) / 4096.0f;
 
 		reset_i2c_transaction(&imu_read_gyro);
 
