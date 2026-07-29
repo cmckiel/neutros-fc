@@ -1,22 +1,16 @@
 add_library(
-  imu STATIC
-  src/imu.c
-  src/imu_mpu6050.c
-  src/mpu6050_init.c
-  src/mpu6050.c
+  time_util STATIC
+  src/time_util.c
 )
 
 target_include_directories(
-  imu
+  time_util
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(
-  imu
+  time_util
   PRIVATE
   Hal::stm32f4_hal
-  blackboard
-  time_util
 )
-

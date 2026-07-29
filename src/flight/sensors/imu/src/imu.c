@@ -3,6 +3,7 @@
 #include "imu_mpu6050.h"
 #include "blackboard.h"
 #include "blackboard_topic_ids.h"
+#include "mpu6050.h"
 
 static imu_blackboard_data_t *imu_blackboard_data;
 
@@ -14,17 +15,25 @@ bool imu_init()
 
 bool imu_exec()
 {
-  float gx_dps = 0;
-  float gy_dps = 0;
-  float gz_dps = 0;
+  float xa;
+  float ya;
+  float za;
 
-  bool res = imu_mpu6050_get_angular_acceleration(&gx_dps, &gy_dps, &gz_dps);
+  float xg;
+  float yg;
+  float zg;
+
+  bool res = imu_mpu6050_get_imu_data(&xa, &ya, &za, &xg, &yg, &zg);
 
   if (res)
   {
-    imu_blackboard_data->public_data.gyroscope.x_angular_velocity_dps = gx_dps;
-    imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps = gy_dps;
-    imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps = gz_dps;
+    imu_blackboard_data->public_data.gyroscope.x_angular_velocity_dps = xg;
+    imu_blackboard_data->public_data.gyroscope.y_angular_velocity_dps = yg;
+    imu_blackboard_data->public_data.gyroscope.z_angular_velocity_dps = zg;
+
+    imu_blackboard_data->public_data.accelerometer.x_accel = xa;
+    imu_blackboard_data->public_data.accelerometer.y_accel = ya;
+    imu_blackboard_data->public_data.accelerometer.z_accel = za;
   }
 
   return false;

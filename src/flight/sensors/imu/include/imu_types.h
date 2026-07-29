@@ -9,12 +9,21 @@ typedef struct {
   float z_angular_velocity_dps;
 } imu_gyro_t;
 
+typedef struct
+{
+  float x_accel;
+  float y_accel;
+  float z_accel;
+} imu_accel_t;
+
+
 typedef struct {
 
 } imu_blackboard_private_data_t;
 
 typedef struct {
   imu_gyro_t gyroscope;
+  imu_accel_t accelerometer;
 } imu_blackboard_public_data_t;
 
 typedef struct {

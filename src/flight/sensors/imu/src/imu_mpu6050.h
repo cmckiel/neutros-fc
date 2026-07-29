@@ -3,8 +3,10 @@
 
 #include <stdbool.h>
 
+#include "mpu6050.h"
+
 bool imu_mpu6050_init();
-bool imu_mpu6050_get_angular_acceleration(float *gx_dps_ptr, float *gy_dps_ptr, float *gz_dps_ptr);
+bool imu_mpu6050_get_imu_data(float *xa, float *ya, float *za, float *xg, float *yg, float *zg);
 
 #endif /* _IMU_MPU6050_H */
 
