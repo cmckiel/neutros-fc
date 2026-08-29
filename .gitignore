@@ -3,3 +3,5 @@ build/
 .venv
 docs/_build/
 docs/_sphinx/_breathe/_doxygen/xml/
+.direnv/
+
