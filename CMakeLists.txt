@@ -15,6 +15,18 @@ add_sphinx_target()
 
 add_subdirectory(src)
 
+if(PROJECT_IS_TOP_LEVEL)
+  option(LINK_CURRENT_BUILD "Point build/current at this build directory" ON)
+  if(LINK_CURRENT_BUILD)
+    file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
+    file(REMOVE "${CMAKE_SOURCE_DIR}/build/current")
+    file(CREATE_LINK
+      "${CMAKE_BINARY_DIR}"
+      "${CMAKE_SOURCE_DIR}/build/current"
+      SYMBOLIC)
+  endif()
+endif()
+
 if (TARGET_BUILD)
   # Include HAL in the project.
   add_subdirectory(lib/hal)

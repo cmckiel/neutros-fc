@@ -1,0 +1,5 @@
+CompileFlags:
+  CompilationDatabase: build/current
+  Remove: [--specs=*, -fstack-usage, -mno-thumb-interwork]
+  Add: [-Wno-unknown-warning-option]
+
